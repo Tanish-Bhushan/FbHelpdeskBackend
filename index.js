@@ -4,18 +4,27 @@ const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
-
+let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
 connectDatabase();
 app.use(express.json());
 app.use(cors());
 
 app.post("/signup", async (req, res) => {
   const { username, email } = req.body;
-  var ifUserPresent = await userModel.findOne({ username });
-  ifUserPresent = await userModel.findOne({ email });
-  if (ifUserPresent) {
+  if (!emailRegex.test(req.body.email)) {
     return res.json({ message: "300" });
+    
   }
+  const ifUserPresentWithSameName = await userModel.findOne({ username });
+  const ifUserPresentWithSameEmail = await userModel.findOne({ email });
+
+  if (ifUserPresentWithSameName) {
+    return res.json({ message: "301" });
+  }
+  if (ifUserPresentWithSameEmail) {
+    return res.json({ message: "302" });
+  }
+
   const user = new userModel();
 
   user.username = req.body.username;
